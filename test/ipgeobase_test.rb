@@ -8,25 +8,34 @@ def get_fixture_path(name)
 end
 
 class IpgeobaseTest < Minitest::Test
-  def test_correct_metadata
+  def setup
+    ip = '24.48.0.1'
     xml_path = get_fixture_path('address.xml')
     xml = File.read(xml_path)
 
-    stub_request(:get, 'http://ip-api.com/xml/24.48.0.1')
+    stub_request(:get, "http://ip-api.com/xml/#{ip}")
       .to_return(status: 200, body: xml)
 
-    actual_ip_meta = Ipgeobase.lookup('24.48.0.1')
+    @ip_meta = Ipgeobase.lookup(ip)
+  end
 
-    expected_ip_meta = {
-      'country' => 'Russia',
-      'city' => 'Yekaterinburg',
-      'countryCode' => 'RU',
-      'lat' => '56.8333',
-      'lon' => '60.6'
-    }
+  def test_country
+    assert_equal @ip_meta.country, 'Russia'
+  end
 
-    expected_ip_meta.each do |key, value|
+  def test_city
+    assert_equal @ip_meta.city, 'Yekaterinburg'
+  end
 
-    end
+  def test_country_code
+    assert_equal @ip_meta.country_code, 'RU'
+  end
+
+  def test_lat
+    assert_equal @ip_meta.lat, '56.8333'
+  end
+
+  def test_lon
+    assert_equal @ip_meta.lon, '60.6'
   end
 end
